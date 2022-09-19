@@ -1,6 +1,6 @@
 import sqlite3
 
-from flask import request
+from flask import request, jsonify
 from flask_restx import Resource, Namespace
 
 from app.create_db import db
@@ -30,7 +30,10 @@ class DirectorsView(Resource):
             db.session.rollback()
             return "Не удалось добавить режиссёра", 404
         else:
-            return "Режиссёр добавлен", 201
+            response = jsonify(post_data)
+            response.headers['location'] = f'/directors/{director.id}'
+            response.status_code = 201
+            return response
 
 
 @directors_ns.route("/<int:id>")

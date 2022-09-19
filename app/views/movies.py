@@ -1,5 +1,5 @@
 import sqlite3
-
+from flask import jsonify
 from flask import request
 from flask_restx import Resource, Namespace
 
@@ -52,7 +52,10 @@ class MoviesView(Resource):
             db.session.rollback()
             return "Не удалось добавить фильм", 404
         else:
-            return "Фильм добавлен", 201
+            response = jsonify(post_data)
+            response.headers['location'] = f'/movies/{movie.id}'
+            response.status_code = 201
+            return response
 
 
 @movies_ns.route("/<int:id>")  # Создаём маршрут выборки, изменения и удаления одного фильма

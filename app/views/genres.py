@@ -1,6 +1,6 @@
 import sqlite3
 
-from flask import request
+from flask import request, jsonify
 from flask_restx import Resource, Namespace
 
 from app.create_db import db
@@ -30,7 +30,10 @@ class GenresView(Resource):
             db.session.rollback()
             return "Не удалось добавить жанр", 404
         else:
-            return "Жанр добавлен", 201
+            response = jsonify(post_data)
+            response.headers['location'] = f'/genres/{genre.id}'
+            response.status_code = 201
+            return response
 
 
 @genres_ns.route("/<int:id>")
