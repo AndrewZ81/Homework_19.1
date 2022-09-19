@@ -1,0 +1,68 @@
+import sqlite3
+
+from flask import request
+from flask_restx import Resource, Namespace
+
+from app.create_db import db
+from app.models import Director
+from app.schemes import DirectorSchema
+
+directors_ns = Namespace("directors")  # Создаём пространство имён для режиссёров
+
+# Создаём экземпляры классов сериализации
+director_schema = DirectorSchema()
+directors_schema = DirectorSchema(many=True)
+
+
+@directors_ns.route("/")  # Создаём маршрут выборки всех режиссёров и добавления режиссёра
+class DirectorsView(Resource):
+    def get(self):
+        directors = db.session.query(Director).all()
+        return directors_schema.dump(directors), 200
+
+    def post(self):
+        post_data = request.json
+        director = Director(**post_data)
+        try:
+            db.session.add(director)
+            db.session.commit()
+        except sqlite3.OperationalError:
+            db.session.rollback()
+            return "Не удалось добавить режиссёра", 404
+        else:
+            return "Режиссёр добавлен", 201
+
+
+@directors_ns.route("/<int:id>")
+class DirectorView(Resource):
+    def get(self, id):
+        director = db.session.query(Director).get(id)
+        if director:
+            return director_schema.dump(director), 200
+        else:
+            return "Такого режиссёра не существует", 404
+
+    def put(self, id):
+        put_data = request.json
+        director = db.session.query(Director).get(id)
+        if director:
+            try:
+                director.name = put_data.get("name")
+                db.session.add(director)
+                db.session.commit()
+            except sqlite3.OperationalError:
+                db.session.rollback()
+                return "Не удалось изменить режиссёра", 404
+            else:
+                return "Режиссёр изменён", 200
+        else:
+            return "Такого режиссёра не существует", 404
+
+    def delete(self, id):
+        director = db.session.query(Director).get(id)
+        if director:
+            db.session.delete(director)
+            db.session.commit()
+            return "Режиссёр удалён", 200
+        else:
+            return "Такого режиссёра не существует", 404
