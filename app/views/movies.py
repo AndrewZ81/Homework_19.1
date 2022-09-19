@@ -13,20 +13,14 @@ movies_ns = Namespace("movies")  # Создаём пространство им�
 movie_schema = MovieSchema()
 movies_schema = MovieSchema(many=True)
 
-
-@movies_ns.route("/")  # Создаём маршрут выборки всех фильмов и добавления фильма
+# Создаём маршрут выборки всех фильмов, фильмов по режиссёру/жанру/году и добавления фильма
+@movies_ns.route("/")
 class MoviesView(Resource):
     def get(self):
         director_id = request.args.get("director_id")
         genre_id = request.args.get("genre_id")
-        if director_id and genre_id:
-            movies = db.session.query(Movie).filter(Movie.director_id == int(director_id),
-                                                    Movie.genre_id == int(genre_id)).all()
-            if movies:
-                return movies_schema.dump(movies), 200
-            else:
-                return "Таких режиссёра и жанра не существует", 404
-        elif director_id:
+        year = request.args.get("year")
+        if director_id:
             movies = db.session.query(Movie).filter(Movie.director_id == int(director_id)).all()
             if movies:
                 return movies_schema.dump(movies), 200
@@ -38,6 +32,12 @@ class MoviesView(Resource):
                 return movies_schema.dump(movies), 200
             else:
                 return "Такого жанра не существует", 404
+        elif year:
+            movies = db.session.query(Movie).filter(Movie.year == int(year)).all()
+            if movies:
+                return movies_schema.dump(movies), 200
+            else:
+                return "Фильмов такого года не существует", 404
         else:
             movies = db.session.query(Movie).all()
             return movies_schema.dump(movies), 200

@@ -29,7 +29,7 @@ def create_extensions(flask_app):
     :return:
     """
     db.init_app(flask_app)
-    api = Api()
+    api = Api(flask_app)
     api.add_namespace(movies_ns)
     api.add_namespace(directors_ns)
     api.add_namespace(genres_ns)
