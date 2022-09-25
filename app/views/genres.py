@@ -4,7 +4,7 @@ from flask import request, jsonify
 from flask_restx import Resource, Namespace
 
 from app.create_db import db
-from app.functions import auth_required
+from app.functions import auth_required, admin_required
 from app.models import Genre
 from app.schemes import GenreSchema
 
@@ -22,6 +22,7 @@ class GenresView(Resource):
         genres = db.session.query(Genre).all()
         return genres_schema.dump(genres), 200
 
+    @admin_required
     def post(self):
         post_data = request.json
         genre = Genre(**post_data)
@@ -48,6 +49,7 @@ class GenreView(Resource):
         else:
             return "Такого жанра не существует", 404
 
+    @admin_required
     def put(self, id):
         put_data = request.json
         genre = db.session.query(Genre).get(id)
@@ -64,6 +66,7 @@ class GenreView(Resource):
         else:
             return "Такого жанра не существует", 404
 
+    @admin_required
     def delete(self, id):
         genre = db.session.query(Genre).get(id)
         if genre:
