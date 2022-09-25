@@ -23,3 +23,11 @@ class MovieSchema(Schema):
     rating = fields.Float()
     genre = fields.Nested(GenreSchema)
     director = fields.Nested(DirectorSchema)
+
+
+# Создаём класс сериализации сущностей "Пользователь" базы данных
+class UserSchema(Schema):
+    id = fields.Int(dump_only=True)
+    username = fields.Str()
+    password = fields.Str()
+    role = fields.Str()
