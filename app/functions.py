@@ -54,3 +54,39 @@ def generate_tokens(data):
         "refresh_token": refresh_token
     }
     return tokens
+
+def check_token(token):
+    """
+    Проверяет токен
+    :param token: Токен для проверки
+    :return: Булево значение
+    """
+    try:
+        jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    except Exception:
+        return False
+    else:
+        return True
+
+
+def regenerate_tokens(token):
+    """
+    Пересоздаёт токены для пользователя
+    :param token: Токен Refresh_token
+    :return: Access_token и Refresh_token в формате словаря
+    """
+    data = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+
+    min30 = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+    data["exp"] = calendar.timegm(min30.timetuple())
+    access_token = jwt.encode(data, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+    days130 = datetime.datetime.utcnow() + datetime.timedelta(days=130)
+    data["exp"] = calendar.timegm(days130.timetuple())
+    refresh_token = jwt.encode(data, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+    tokens = {
+        "access_token": access_token,
+        "refresh_token": refresh_token
+    }
+    return tokens
