@@ -1,8 +1,11 @@
 import base64
+import calendar
+import datetime
 import hashlib
 import hmac
+import jwt
 
-from constants import PWD_HASH_SALT, PWD_HASH_ITERATIONS
+from constants import JWT_SECRET, JWT_ALGORITHM, PWD_HASH_SALT, PWD_HASH_ITERATIONS
 
 
 def get_hash(password):
@@ -27,6 +30,27 @@ def compare_passwords(password_hash, other_password):
     :param other_password: Переданный пароль пользователя
     :return: Булево значение
     """
-    return hmac.compare_digest(
-        base64.b64decode(password_hash), get_hash(other_password)
-    )
+    entered_password = base64.b64decode(get_hash(other_password))
+    saved_password = base64.b64decode(password_hash)
+    return hmac.compare_digest(saved_password, entered_password)
+
+
+def generate_tokens(data):
+    """
+    Создаёт токены для пользователя
+    :param data: Данные пользователя
+    :return: Access_token и Refresh_token в формате словаря
+    """
+    min30 = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+    data["exp"] = calendar.timegm(min30.timetuple())
+    access_token = jwt.encode(data, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+    days130 = datetime.datetime.utcnow() + datetime.timedelta(days=130)
+    data["exp"] = calendar.timegm(days130.timetuple())
+    refresh_token = jwt.encode(data, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+    tokens = {
+        "access_token": access_token,
+        "refresh_token": refresh_token
+    }
+    return tokens
