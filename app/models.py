@@ -44,6 +44,11 @@ class User(db.Model):
 
 
 def get_hash(password):
+    """
+    Создаёт хэш пароля пользователя
+    :param password: Пароль пользователя
+    :return: Хэш пароля пользователя в виде строки
+    """
     hash_digest = hashlib.pbkdf2_hmac(
         'sha256',
         password.encode('utf-8'),  # Convert the password to bytes
