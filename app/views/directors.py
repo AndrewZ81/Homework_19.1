@@ -4,6 +4,7 @@ from flask import request, jsonify
 from flask_restx import Resource, Namespace
 
 from app.create_db import db
+from app.functions import auth_required
 from app.models import Director
 from app.schemes import DirectorSchema
 
@@ -16,6 +17,7 @@ directors_schema = DirectorSchema(many=True)
 
 @directors_ns.route("/")  # Создаём маршрут выборки всех режиссёров и добавления режиссёра
 class DirectorsView(Resource):
+    @auth_required
     def get(self):
         directors = db.session.query(Director).all()
         return directors_schema.dump(directors), 200
@@ -38,6 +40,7 @@ class DirectorsView(Resource):
 
 @directors_ns.route("/<int:id>")
 class DirectorView(Resource):
+    @auth_required
     def get(self, id):
         director = db.session.query(Director).get(id)
         if director:

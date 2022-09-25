@@ -4,6 +4,7 @@ from flask import request, jsonify
 from flask_restx import Resource, Namespace
 
 from app.create_db import db
+from app.functions import auth_required
 from app.models import Genre
 from app.schemes import GenreSchema
 
@@ -16,6 +17,7 @@ genres_schema = GenreSchema(many=True)
 
 @genres_ns.route("/")
 class GenresView(Resource):
+    @auth_required
     def get(self):
         genres = db.session.query(Genre).all()
         return genres_schema.dump(genres), 200
@@ -38,6 +40,7 @@ class GenresView(Resource):
 
 @genres_ns.route("/<int:id>")
 class GenreView(Resource):
+    @auth_required
     def get(self, id):
         genre = db.session.query(Genre).get(id)
         if genre:
