@@ -7,6 +7,8 @@ from app.create_db import db
 from app.models import Movie
 from app.schemes import MovieSchema
 
+from app.functions import auth_required
+
 movies_ns = Namespace("movies")  # Создаём пространство имён для фильмов
 
 # Создаём экземпляры классов сериализации
@@ -16,6 +18,7 @@ movies_schema = MovieSchema(many=True)
 # Создаём маршрут выборки всех фильмов, фильмов по режиссёру/жанру/году и добавления фильма
 @movies_ns.route("/")
 class MoviesView(Resource):
+    @auth_required
     def get(self):
         director_id = request.args.get("director_id")
         genre_id = request.args.get("genre_id")
@@ -60,6 +63,7 @@ class MoviesView(Resource):
 
 @movies_ns.route("/<int:id>")  # Создаём маршрут выборки, изменения и удаления одного фильма
 class MovieView(Resource):
+    @auth_required
     def get(self, id):
         movie = db.session.query(Movie).get(id)
         if movie:
