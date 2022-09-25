@@ -5,7 +5,7 @@ from flask_restx import Resource, Namespace
 
 from app.create_db import db
 from app.models import User
-from app.functions import compare_passwords, generate_tokens
+from app.functions import compare_passwords, generate_tokens, regenerate_tokens, check_token
 
 auth_ns = Namespace("auth")  # Создаём пространство имён аутентификации
 
@@ -33,4 +33,11 @@ class AuthView(Resource):
         return "Неверный пароль", 404
 
     def put(self):
-        pass
+        put_data = request.json
+        token = put_data.get("refresh_token")
+        if check_token(token):
+            response = jsonify(regenerate_tokens(token))
+            response.status_code = 201
+            return response
+        else:
+            return "Ошибка декодирования токена", 404
