@@ -7,6 +7,7 @@ from app.views.movies import movies_ns
 from app.views.genres import genres_ns
 from app.views.directors import directors_ns
 from app.views.users import users_ns
+from app.views.auth import auth_ns
 
 
 def create_app(config_obj):
@@ -34,6 +35,7 @@ def create_extensions(flask_app):
     api.add_namespace(directors_ns)
     api.add_namespace(genres_ns)
     api.add_namespace(users_ns)
+    api.add_namespace(auth_ns)
 
 
 app_config = Config()  # Создаём экземпляр класса конфигурации приложения
