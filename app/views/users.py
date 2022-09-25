@@ -4,7 +4,7 @@ from flask import request, jsonify
 from flask_restx import Resource, Namespace
 
 from app.create_db import db
-from app.models import User
+from app.models import User, get_hash
 from app.schemes import UserSchema
 
 users_ns = Namespace("users")  # Создаём пространство имён для пользователей
@@ -23,6 +23,7 @@ class UsersView(Resource):
     def post(self):
         post_data = request.json
         user = User(**post_data)
+        user.password = get_hash(post_data.get("password"))
         try:
             db.session.add(user)
             db.session.commit()
@@ -51,7 +52,7 @@ class UserView(Resource):
         if user:
             try:
                 user.username = put_data.get("username")
-                user.password = put_data.get("password")
+                user.password = get_hash(put_data.get("password"))
                 user.role = put_data.get("role")
                 db.session.add(user)
                 db.session.commit()
