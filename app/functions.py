@@ -4,6 +4,7 @@ import datetime
 import hashlib
 import hmac
 import jwt
+from flask import request
 
 from constants import JWT_SECRET, JWT_ALGORITHM, PWD_HASH_SALT, PWD_HASH_ITERATIONS
 
@@ -90,3 +91,17 @@ def regenerate_tokens(token):
         "refresh_token": refresh_token
     }
     return tokens
+
+
+def auth_required(func):
+    def wrapper(*args, **kwargs):
+        data = request.headers.get("Authorization")
+        if data:
+            token = data.split("Bearer ")[-1]
+            if check_token(token):
+                return func(*args, **kwargs)
+            else:
+                return "Ошибка декодирования токена", 404
+        else:
+            return "Вы не авторизованы", 401
+    return wrapper
