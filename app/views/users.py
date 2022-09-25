@@ -4,7 +4,8 @@ from flask import request, jsonify
 from flask_restx import Resource, Namespace
 
 from app.create_db import db
-from app.models import User, get_hash
+from app.models import User
+from app.functions import get_hash
 from app.schemes import UserSchema
 
 users_ns = Namespace("users")  # Создаём пространство имён для пользователей
